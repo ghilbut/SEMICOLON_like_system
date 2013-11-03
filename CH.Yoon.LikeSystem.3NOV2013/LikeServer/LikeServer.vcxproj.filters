@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_reader.cpp">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_value.cpp">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_writer.cpp">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\like_server.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="third_party">
+      <UniqueIdentifier>{4ec8f195-b35c-4564-bc52-dca0e7ae052a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="third_party\jsoncpp">
+      <UniqueIdentifier>{b858501c-7e87-4c11-8caf-482b28532fe9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{c357fe24-8728-40e0-a4fd-587a7ffaa748}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\autolink.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\config.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\features.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\forwards.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\json.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\reader.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\value.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\writer.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\like_message.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\like_room.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\like_server.h">
+      <Filter>common</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
