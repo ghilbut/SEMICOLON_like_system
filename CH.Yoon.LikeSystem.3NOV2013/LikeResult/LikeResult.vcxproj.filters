@@ -16,6 +16,12 @@
     <Filter Include="common">
       <UniqueIdentifier>{8a0039b7-47b2-4cf3-9743-b379570d136c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="third_party">
+      <UniqueIdentifier>{d569cbed-d4c5-417f-b6ce-7aa988fc270f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="third_party\jsoncpp">
+      <UniqueIdentifier>{91fccd49-c102-4ad2-9580-530e9b50bdf9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -48,6 +54,33 @@
     <ClInclude Include="..\common\like_result.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\like_result_delegate.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\autolink.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\config.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\features.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\forwards.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\json.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\reader.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\value.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\writer.h">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LikeResult.cpp">
@@ -58,6 +91,18 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\like_result.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_reader.cpp">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_value.cpp">
+      <Filter>third_party\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_writer.cpp">
+      <Filter>third_party\jsoncpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

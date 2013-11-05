@@ -18,7 +18,7 @@
 
 
 CLikeResultDlg::CLikeResultDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CLikeResultDlg::IDD, pParent), client_(0)
+	: CDialogEx(CLikeResultDlg::IDD, pParent), result_(*this)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -32,9 +32,8 @@ BEGIN_MESSAGE_MAP(CLikeResultDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 
-    ON_BN_CLICKED(IDC_CONNECT, &CLikeResultDlg::OnBnClickedConnect)
-    ON_BN_CLICKED(IDC_DISCONNECT, &CLikeResultDlg::OnBnClickedDisconnect)
-    ON_BN_CLICKED(IDC_LIKE, &CLikeResultDlg::OnBnClickedLike)
+    ON_BN_CLICKED(IDC_OPEN, &CLikeResultDlg::OnBnClickedOpen)
+    ON_BN_CLICKED(IDC_CLOSE, &CLikeResultDlg::OnBnClickedClose)
 END_MESSAGE_MAP()
 
 
@@ -53,7 +52,7 @@ BOOL CLikeResultDlg::OnInitDialog()
     ::SetDlgItemText(*this, IDC_HOST, _T("127.0.0.1"));
     ::SetDlgItemText(*this, IDC_PORT, _T("8181"));
     ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE), FALSE);
+    ::SetDlgItemText(*this, IDC_USER, _T("p0"));
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -96,46 +95,62 @@ HCURSOR CLikeResultDlg::OnQueryDragIcon()
 
 
 
-void CLikeResultDlg::OnBnClickedConnect()
+void CLikeResultDlg::OnBnClickedOpen()
 {
     // TODO: Add your control notification handler code here
     char ip[260];
     char port[10];
-    wchar_t target[1024];
-    wchar_t user[1024];
+    wchar_t wuser[260];
     ::GetDlgItemTextA(*this, IDC_HOST, ip, 260);
     ::GetDlgItemTextA(*this, IDC_PORT, port, 10);
-    ::GetDlgItemTextW(*this, IDC_TARGET, target, 1024);
-    ::GetDlgItemTextW(*this, IDC_USER, user, 1024);
+    ::GetDlgItemTextW(*this, IDC_USER, wuser, 1024);
 
-    tcp::resolver resolver(io_service_);
-    tcp::resolver::query query(ip, port);
-    tcp::resolver::iterator iterator = resolver.resolve(query);
-    client_ = new chat_client(io_service_, iterator);
-    thread_.swap(boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
+    char user[260] = "";
+    const int size = WideCharToMultiByte(CP_UTF8, 0, wuser, wcslen(wuser), user, 260, 0, 0);
+    if (size == 0) {
+        // TODO(jh81.kim): error handling with size
+        // see: http://msdn.microsoft.com/en-us/library/dd374130.aspx
+        return;
+    }
+
+    result_.Open(ip, port, user);
 }
 
-void CLikeResultDlg::OnBnClickedDisconnect()
+void CLikeResultDlg::OnBnClickedClose()
 {
     // TODO: Add your control notification handler code here
-    if (client_) {
-        client_->close();
-        thread_.join();
-        delete client_;
-    }
-}
-
-void CLikeResultDlg::OnBnClickedLike()
-{
-    // TODO: Add your control notification handler code here
-    if (client_) {
-    }
+    result_.Close();
 }
 
 void CLikeResultDlg::OnCancel()
 {
     // TODO: Add your specialized code here and/or call the base class
-    OnBnClickedDisconnect();
 
     CDialogEx::OnCancel();
+}
+
+
+
+void CLikeResultDlg::OnOpened(void) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_USER), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), TRUE);
+    ::SetDlgItemTextA(*this, IDC_COUNT, "0");
+}
+
+void CLikeResultDlg::OnClosed(void) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_USER), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
+    ::SetDlgItemTextA(*this, IDC_COUNT, "0");
+}
+
+void CLikeResultDlg::OnLikeCount(unsigned int count) {
+    char text[10];
+    sprintf(text, "%u", count);
+    ::SetDlgItemTextA(*this, IDC_COUNT, text);
 }

@@ -90,7 +90,7 @@ int main(const int argc, const char** argv) {
         boost::asio::io_service io_service;
         // const Tcp::endpoint endpoint(Tcp::v4(), port);
         const Tcp::endpoint endpoint(boost::asio::ip::address::from_string(ip), port);
-        chat_server server(io_service, endpoint);
+        LikeServer server(io_service, endpoint);
         printf("[INFO] run server.\n", filepath.c_str());
         io_service.run();
     } catch (std::exception& e) {

@@ -2,6 +2,12 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\common\like_server.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\like_session.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
     <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_reader.cpp">
       <Filter>third_party\jsoncpp</Filter>
     </ClCompile>
@@ -11,22 +17,37 @@
     <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_writer.cpp">
       <Filter>third_party\jsoncpp</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\like_server.cpp">
+    <ClCompile Include="..\common\like_room.cpp">
       <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="third_party">
-      <UniqueIdentifier>{4ec8f195-b35c-4564-bc52-dca0e7ae052a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="third_party\jsoncpp">
-      <UniqueIdentifier>{b858501c-7e87-4c11-8caf-482b28532fe9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="common">
       <UniqueIdentifier>{c357fe24-8728-40e0-a4fd-587a7ffaa748}</UniqueIdentifier>
     </Filter>
+    <Filter Include="third_party">
+      <UniqueIdentifier>{60446d3b-a292-49df-943a-46e3b2f643d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="third_party\jsoncpp">
+      <UniqueIdentifier>{a542efb9-0b71-4b22-a213-3f1986cfac76}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\like_message.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\like_room.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\like_server.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\like_session.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\like_session_delegate.h">
+      <Filter>common</Filter>
+    </ClInclude>
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\autolink.h">
       <Filter>third_party\jsoncpp</Filter>
     </ClInclude>
@@ -50,15 +71,6 @@
     </ClInclude>
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\writer.h">
       <Filter>third_party\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\like_message.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\like_room.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\like_server.h">
-      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

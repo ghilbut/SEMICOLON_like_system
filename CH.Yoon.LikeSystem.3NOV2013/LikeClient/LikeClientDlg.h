@@ -5,12 +5,11 @@
 #pragma once
 
 #include "like_client.h"
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
+#include "like_client_delegate.h"
 
 
 // CLikeClientDlg dialog
-class CLikeClientDlg : public CDialogEx
+class CLikeClientDlg : public CDialogEx, public LikeClientDelegate
 {
 // Construction
 public:
@@ -32,16 +31,20 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 
-    afx_msg void OnBnClickedConnect();
-    afx_msg void OnBnClickedDisconnect();
+    afx_msg void OnBnClickedJoin();
+    afx_msg void OnBnClickedLeave();
     afx_msg void OnBnClickedLike();
+    afx_msg void OnBnClickedLikeCancel();
     virtual void OnCancel();
 	DECLARE_MESSAGE_MAP()
 
 
+private:
+    virtual void OnJoined(void);
+    virtual void OnLeaved(void);
+    virtual void OnAlreadyLike(bool like);
+
 
 private:
-    boost::asio::io_service io_service_;
-    boost::thread thread_;
-    chat_client* client_;
+    LikeClient client_;
 };

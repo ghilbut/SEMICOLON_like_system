@@ -58,6 +58,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)third_party\boost_1_54_0\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>uafxcwd.lib;libcmtd.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>uafxcwd.lib;libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -107,6 +109,15 @@
   <ItemGroup>
     <ClInclude Include="..\common\like_message.h" />
     <ClInclude Include="..\common\like_result.h" />
+    <ClInclude Include="..\common\like_result_delegate.h" />
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\autolink.h" />
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\config.h" />
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\features.h" />
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\forwards.h" />
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\json.h" />
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\reader.h" />
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\value.h" />
+    <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\writer.h" />
     <ClInclude Include="LikeResult.h" />
     <ClInclude Include="LikeResultDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -114,6 +125,18 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\common\like_result.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_reader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_value.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_writer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="LikeResult.cpp" />
     <ClCompile Include="LikeResultDlg.cpp" />
     <ClCompile Include="stdafx.cpp">

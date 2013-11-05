@@ -81,7 +81,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\common\like_room.cpp" />
     <ClCompile Include="..\common\like_server.cpp" />
+    <ClCompile Include="..\common\like_session.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_reader.cpp" />
     <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_value.cpp" />
     <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_writer.cpp" />
@@ -91,6 +95,8 @@
     <ClInclude Include="..\common\like_message.h" />
     <ClInclude Include="..\common\like_room.h" />
     <ClInclude Include="..\common\like_server.h" />
+    <ClInclude Include="..\common\like_session.h" />
+    <ClInclude Include="..\common\like_session_delegate.h" />
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\autolink.h" />
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\config.h" />
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\features.h" />
