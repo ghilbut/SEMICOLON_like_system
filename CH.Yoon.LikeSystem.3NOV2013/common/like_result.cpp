@@ -1,6 +1,7 @@
 #include "like_result.h"
 #include "like_result_delegate.h"
 #include <json/json.h>
+#include <boost/assert.hpp>
 #include <boost/bind.hpp>
 
 
@@ -11,12 +12,14 @@ LikeResult::LikeResult(LikeResultDelegate& delegate)
 }
 
 LikeResult::~LikeResult(void) {
-    // nothing
+    io_service_.reset();
 }
 
-void LikeResult::Open(const char* ip, const char* port, const char* user_id) {
-
-    user_id_ = user_id;
+bool LikeResult::Connect(const char* ip, const char* port) {
+    BOOST_ASSERT(!socket_.is_open());
+    if (socket_.is_open()) {
+        return false;
+    }
 
     io_service_.reset();
     Tcp::resolver resolver(io_service_);
@@ -25,11 +28,29 @@ void LikeResult::Open(const char* ip, const char* port, const char* user_id) {
     boost::asio::async_connect(socket_, iterator, boost::bind(&LikeResult::handle_connect, this, boost::asio::placeholders::error));
     thread_.swap(boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
     thread_.detach();
+
+    return true;
+}
+
+void LikeResult::Open(const char* user_id) {
+
+    user_id_ = user_id;
+
+    Json::Value root(Json::objectValue);
+    root["query"] = "open";
+    root["user"] = user_id_;
+    Json::FastWriter writer;
+    const std::string json = writer.write(root);
+
+    chat_message msg;
+    strcpy(msg.body(), json.c_str());
+    msg.body_length(json.length());
+    msg.encode_header();
+
+    Write(msg);
 }
 
 void LikeResult::Close(void) {
-
-    io_service_.post(boost::bind(&LikeResultDelegate::OnClosed, &delegate_));
 
     Json::Value root(Json::objectValue);
     root["query"] = "close";
@@ -43,7 +64,13 @@ void LikeResult::Close(void) {
     msg.encode_header();
     Write(msg);
 
-    //io_service_.post(boost::bind(&LikeResult::do_close, this));
+    io_service_.post(boost::bind(&LikeResultDelegate::OnClosed, &delegate_));
+}
+
+void LikeResult::Disconnect(void) {
+    if (socket_.is_open()) {
+        io_service_.post(boost::bind(&LikeResult::do_close, this));
+    }
 }
 
 void LikeResult::Write(const chat_message& msg) {
@@ -57,31 +84,7 @@ void LikeResult::handle_connect(const boost::system::error_code& error) {
             , boost::asio::buffer(read_msg_.data(), chat_message::header_length)
             , boost::bind(&LikeResult::handle_read_header, this, boost::asio::placeholders::error));
 
-
-
-
-
-        // TODO(jh81.kim): open room
-
-        io_service_.post(boost::bind(&LikeResultDelegate::OnOpened, &delegate_));
-
-        Json::Value root(Json::objectValue);
-        root["query"] = "open";
-        root["user"] = user_id_;
-        Json::FastWriter writer;
-        const std::string json = writer.write(root);
-
-        chat_message msg;
-        strcpy(msg.body(), json.c_str());
-        msg.body_length(json.length());
-        msg.encode_header();
-
-        Write(msg);
-
-
-
-
-
+        io_service_.post(boost::bind(&LikeResultDelegate::OnConnected, &delegate_));
     } else {
         printf("[ERROR] %s\n", error.message().c_str());
     }
@@ -127,7 +130,7 @@ void LikeResult::handle_read_body(const boost::system::error_code& error) {
             const unsigned int count = root["count"].asUInt();
             io_service_.post(boost::bind(&LikeResultDelegate::OnLikeCount, &delegate_, count));
         } else if (query == "closed") {
-            Close();
+            io_service_.post(boost::bind(&LikeResultDelegate::OnClosed, &delegate_));
         } else {
             // nothing
         }
@@ -167,5 +170,5 @@ void LikeResult::do_write(chat_message msg) {
 
 void LikeResult::do_close(void) {
     socket_.close();
-    io_service_.post(boost::bind(&LikeResultDelegate::OnClosed, &delegate_));
+    io_service_.post(boost::bind(&LikeResultDelegate::OnDisconnected, &delegate_));
 }

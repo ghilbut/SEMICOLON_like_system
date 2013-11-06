@@ -107,8 +107,8 @@
     <None Include="res\LikeClient.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\sample\common\like_client_delegate.h" />
     <ClInclude Include="..\common\like_client.h" />
+    <ClInclude Include="..\common\like_client_delegate.h" />
     <ClInclude Include="..\common\like_message.h" />
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\autolink.h" />
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\config.h" />

@@ -32,10 +32,12 @@ BEGIN_MESSAGE_MAP(CLikeClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 
+    ON_BN_CLICKED(IDC_CONNECT, &CLikeClientDlg::OnBnClickedConnect)
     ON_BN_CLICKED(IDC_JOIN, &CLikeClientDlg::OnBnClickedJoin)
     ON_BN_CLICKED(IDC_LEAVE, &CLikeClientDlg::OnBnClickedLeave)
     ON_BN_CLICKED(IDC_LIKE, &CLikeClientDlg::OnBnClickedLike)
     ON_BN_CLICKED(IDC_LIKE_CANCEL, &CLikeClientDlg::OnBnClickedLikeCancel)
+    ON_BN_CLICKED(IDC_DISCONNECT, &CLikeClientDlg::OnBnClickedDisconnect)
 END_MESSAGE_MAP()
 
 
@@ -100,15 +102,18 @@ HCURSOR CLikeClientDlg::OnQueryDragIcon()
 
 
 
-void CLikeClientDlg::OnBnClickedJoin()
-{
-    // TODO: Add your control notification handler code here
+void CLikeClientDlg::OnBnClickedConnect() {
     char ip[260];
     char port[10];
-    wchar_t wuser[260];
-    wchar_t wtarget[260];
     ::GetDlgItemTextA(*this, IDC_HOST, ip, 260);
     ::GetDlgItemTextA(*this, IDC_PORT, port, 10);
+
+    client_.Connect(ip, port);
+}
+
+void CLikeClientDlg::OnBnClickedJoin() {
+    wchar_t wuser[260];
+    wchar_t wtarget[260];
     ::GetDlgItemTextW(*this, IDC_USER, wuser, 260);
     ::GetDlgItemTextW(*this, IDC_TARGET, wtarget, 260);
 
@@ -128,58 +133,86 @@ void CLikeClientDlg::OnBnClickedJoin()
         return;
     }
 
-    client_.Open(ip, port, user, target);
+    client_.Join(user, target);
 }
 
-void CLikeClientDlg::OnBnClickedLeave()
-{
-    // TODO: Add your control notification handler code here
-    client_.Close();
+void CLikeClientDlg::OnBnClickedLeave() {
+    client_.Leave();
 }
 
-void CLikeClientDlg::OnBnClickedLike()
-{
-    // TODO: Add your control notification handler code here
-    
+void CLikeClientDlg::OnBnClickedLike() {
+    client_.Like(true);
 }
 
 void CLikeClientDlg::OnBnClickedLikeCancel() {
+    client_.Like(false);
+}
 
+void CLikeClientDlg::OnBnClickedDisconnect() {
+    client_.Disconnect();
 }
 
 void CLikeClientDlg::OnCancel()
 {
-    // TODO: Add your specialized code here and/or call the base class
-    OnBnClickedLeave();
-
+    client_.Disconnect();
     CDialogEx::OnCancel();
 }
 
 
 
-void CLikeClientDlg::OnJoined(void) {
+void CLikeClientDlg::OnConnected(void) {
     ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_USER), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_TARGET), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE_CANCEL), FALSE);
-}
 
-void CLikeClientDlg::OnLeaved(void) {
-    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_USER), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_TARGET), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_JOIN), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LEAVE), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_LIKE), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_LIKE_CANCEL), FALSE);
 }
 
 void CLikeClientDlg::OnAlreadyLike(bool like) {
-    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE), like ? TRUE : FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE_CANCEL), like ? FALSE : TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
+
+    ::EnableWindow(::GetDlgItem(*this, IDC_USER), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_TARGET), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_JOIN), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LEAVE), TRUE);
+
+    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE), like ? FALSE : TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE_CANCEL), like ? TRUE : FALSE);
+}
+
+void CLikeClientDlg::OnLeaved(void) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
+
+    ::EnableWindow(::GetDlgItem(*this, IDC_USER), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_TARGET), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_JOIN), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LEAVE), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE_CANCEL), FALSE);
+}
+
+void CLikeClientDlg::OnDisconnected(void) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
+
+    ::EnableWindow(::GetDlgItem(*this, IDC_USER), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_TARGET), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_JOIN), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LEAVE), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_LIKE_CANCEL), FALSE);
 }

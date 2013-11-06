@@ -1,6 +1,7 @@
 #include "like_server.h"
 #include "like_session.h"
 #include "like_room.h"
+#include <boost/assert.hpp>
 #include <boost/bind.hpp>
 
 
@@ -46,7 +47,6 @@ void LikeServer::OnOpen(LikeSessionPtr session, const std::string& user) {
         printf("[WARNING] host is already exists (%s).\n", user.c_str());
         session->Close();
     }
-    session_list_.erase(session);
 }
 
 void LikeServer::OnClose(LikeSessionPtr session, const std::string& user) {
@@ -63,18 +63,18 @@ void LikeServer::OnClose(LikeSessionPtr session, const std::string& user) {
 void LikeServer::OnJoin(LikeSessionPtr session, const std::string& user, const std::string& target) {
     printf("[INFO] OnJoin(%s, %s)\n", user.c_str(), target.c_str());
 
-    std::map<std::string, LikeRoomPtr>::iterator itr = rooms_.find(user);
+    std::map<std::string, LikeRoomPtr>::iterator itr = rooms_.find(target);
     if (itr == rooms_.end()) {
         printf("[WARNING] room to join is not exists (%s).\n", target.c_str());
         return;
     }
 
     LikeRoom& room = *(itr->second);
-    room.SetHost(session);
+    room.SetGuest(session);
 }
 
-void LikeServer::OnLike(bool like) {
-    // nothing
+void LikeServer::OnLike(LikeSessionPtr session, bool like) {
+    BOOST_ASSERT_MSG(false, "[ERROR] room only event.");
 }
 
 void LikeServer::OnDisconnected(LikeSessionPtr session) {

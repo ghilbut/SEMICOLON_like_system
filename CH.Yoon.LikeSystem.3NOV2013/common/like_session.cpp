@@ -23,6 +23,38 @@ void LikeSession::Start(void) {
         , boost::bind(&LikeSession::handle_read_header, shared_from_this(), boost::asio::placeholders::error));
 }
 
+void LikeSession::Like(unsigned int count) {
+
+    Json::Value root(Json::objectValue);
+    root["query"] = "like";
+    root["count"] = count;
+    Json::FastWriter writer;
+    const std::string json = writer.write(root);
+
+    chat_message msg;
+    strcpy(msg.body(), json.c_str());
+    msg.body_length(json.length());
+    msg.encode_header();
+
+    io_service_.post(boost::bind(&LikeSession::do_write, shared_from_this(), msg));
+}
+
+void LikeSession::AlreadyLike(bool like) {
+
+    Json::Value root(Json::objectValue);
+    root["query"] = "already_like";
+    root["like"] = like;
+    Json::FastWriter writer;
+    const std::string json = writer.write(root);
+
+    chat_message msg;
+    strcpy(msg.body(), json.c_str());
+    msg.body_length(json.length());
+    msg.encode_header();
+
+    io_service_.post(boost::bind(&LikeSession::do_write, shared_from_this(), msg));
+}
+
 void LikeSession::Close(void) {
     socket_.close();
 }
@@ -96,9 +128,13 @@ void LikeSession::handle_read_body(const boost::system::error_code& error) {
                 const std::string param2 = target.asString();
                 io_service_.post(boost::bind(&LikeSessionDelegate::OnJoin, delegate_, shared_from_this(), param1, param2));
             }
-        } else if (query == "leave") {
-            // TODO(jh81.kim): 
         } else if (query == "like") {
+            const Json::Value& like = root["like"];
+            if (like.isBool()) {
+                bool param = like.asBool();
+                io_service_.post(boost::bind(&LikeSessionDelegate::OnLike, delegate_, shared_from_this(), param));
+            }
+        } else if (query == "leave") {
             // TODO(jh81.kim): 
         } else {
             // nothing
@@ -123,5 +159,15 @@ void LikeSession::handle_write(const boost::system::error_code& error) {
         }
     } else {
         //io_service_.post(boost::bind(&LikeSessionDelegate::OnDisconnected, delegate_, shared_from_this()));
+    }
+}
+
+void LikeSession::do_write(chat_message msg) {
+    bool write_in_progress = !write_msgs_.empty();
+    write_msgs_.push_back(msg);
+    if (!write_in_progress) {
+        boost::asio::async_write(socket_
+            , boost::asio::buffer(write_msgs_.front().data(), write_msgs_.front().length())
+            , boost::bind(&LikeSession::handle_write, this, boost::asio::placeholders::error));
     }
 }

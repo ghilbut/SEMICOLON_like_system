@@ -4,8 +4,9 @@
 class LikeClientDelegate {
 public:
     virtual void OnConnected(void) = 0;
-    virtual void OnDisconnected(void) = 0;
     virtual void OnAlreadyLike(bool like) = 0;
+    virtual void OnLeaved(void) = 0;
+    virtual void OnDisconnected(void) = 0;
 
 protected:
     ~LikeClientDelegate(void) {}

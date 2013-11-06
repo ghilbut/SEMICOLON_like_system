@@ -11,12 +11,14 @@ LikeClient::LikeClient(LikeClientDelegate& delegate)
 }
 
 LikeClient::~LikeClient(void) {
-    // nothing
+    io_service_.reset();
 }
 
-void LikeClient::Open(const char* ip, const char* port, const char* user_id, const char* target) {
-    user_id_ = user_id;
-    target_ = target;
+bool LikeClient::Connect(const char* ip, const char* port) {
+    BOOST_ASSERT_MSG(!socket_.is_open(), "[ERROR] already connected.");
+    if (socket_.is_open()) {
+        return false;
+    }
 
     io_service_.reset();
     Tcp::resolver resolver(io_service_);
@@ -25,14 +27,27 @@ void LikeClient::Open(const char* ip, const char* port, const char* user_id, con
     boost::asio::async_connect(socket_, iterator, boost::bind(&LikeClient::handle_connect, this, boost::asio::placeholders::error));
     thread_.swap(boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
     thread_.detach();
+
+    return true;
 }
 
-void LikeClient::Close(void) {
-    io_service_.post(boost::bind(&LikeClient::do_close, this));
-}
+void LikeClient::Join(const char* user_id, const char* target) {
+    user_id_ = user_id;
+    target_ = target;
 
-void LikeClient::Write(const chat_message& msg) {
-    io_service_.post(boost::bind(&LikeClient::do_write, this, msg));
+    Json::Value root(Json::objectValue);
+    root["query"] = "join";
+    root["user"] = user_id;
+    root["target"] = target;
+    Json::FastWriter writer;
+    const std::string json = writer.write(root);
+
+    chat_message msg;
+    strcpy(msg.body(), json.c_str());
+    msg.body_length(json.length());
+    msg.encode_header();
+
+    Write(msg);
 }
 
 void LikeClient::Like(bool like) {
@@ -53,40 +68,42 @@ void LikeClient::Like(bool like) {
     Write(msg);
 }
 
+void LikeClient::Leave(void) {
+    Json::Value root(Json::objectValue);
+    root["query"] = "leave";
+    Json::FastWriter writer;
+    const std::string json = writer.write(root);
+
+    chat_message msg;
+    strcpy(msg.body(), json.c_str());
+    msg.body_length(json.length());
+    msg.encode_header();
+
+    Write(msg);
+
+    io_service_.post(boost::bind(&LikeClientDelegate::OnLeaved, &delegate_));
+}
+
+void LikeClient::Disconnect(void) {
+    if (socket_.is_open()) {
+        io_service_.post(boost::bind(&LikeClient::do_close, this));
+    }
+}
+
+void LikeClient::Write(const chat_message& msg) {
+    io_service_.post(boost::bind(&LikeClient::do_write, this, msg));
+}
+
+
+
 
 void LikeClient::handle_connect(const boost::system::error_code& error) {
     if (!error) {
-        boost::asio::async_read(socket_,
-        boost::asio::buffer(read_msg_.data(), chat_message::header_length),
-        boost::bind(&LikeClient::handle_read_header, this,
-        boost::asio::placeholders::error));
-
-
-
-
-
-        // TODO(jh81.kim): open room
-
         io_service_.post(boost::bind(&LikeClientDelegate::OnConnected, &delegate_));
 
-        Json::Value root(Json::objectValue);
-        root["query"] = "connect";
-        root["user"] = user_id_;
-        root["target"] = target_;
-        Json::FastWriter writer;
-        const std::string json = writer.write(root);
-
-        chat_message msg;
-        strcpy(msg.body(), json.c_str());
-        msg.body_length(json.length());
-        msg.encode_header();
-
-        Write(msg);
-
-
-
-
-
+        boost::asio::async_read(socket_
+            , boost::asio::buffer(read_msg_.data(), chat_message::header_length)
+            , boost::bind(&LikeClient::handle_read_header, this, boost::asio::placeholders::error));
     } else {
         printf("[ERROR] %s\n", error.message().c_str());
     }
@@ -134,7 +151,7 @@ void LikeClient::handle_read_body(const boost::system::error_code& error)
             bool like = root["like"].asBool();
             io_service_.post(boost::bind(&LikeClientDelegate::OnAlreadyLike, &delegate_, like));
         } else if (query == "close") {
-            Close();
+            io_service_.post(boost::bind(&LikeClientDelegate::OnLeaved, &delegate_));
         } else {
             // nothing
         }

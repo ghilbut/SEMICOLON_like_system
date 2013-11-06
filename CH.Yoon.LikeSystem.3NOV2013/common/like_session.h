@@ -19,7 +19,10 @@ public:
 
     void BindDelegate(LikeSessionDelegate* delegate);
     void Start(void);
+    void Like(unsigned int count);
+    void AlreadyLike(bool like);
     void Close(void);
+
     Tcp::socket& socket(void);
 
 
@@ -28,6 +31,8 @@ private:
     void handle_read_header(const boost::system::error_code& error);
     void handle_read_body(const boost::system::error_code& error);
     void handle_write(const boost::system::error_code& error);
+
+    void do_write(chat_message msg);
 
 
 private:

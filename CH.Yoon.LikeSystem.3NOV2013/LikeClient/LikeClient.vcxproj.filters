@@ -54,9 +54,6 @@
     <ClInclude Include="LikeClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\sample\common\like_client_delegate.h">
-      <Filter>common</Filter>
-    </ClInclude>
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\autolink.h">
       <Filter>third_party\jsoncpp</Filter>
     </ClInclude>
@@ -80,6 +77,9 @@
     </ClInclude>
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\writer.h">
       <Filter>third_party\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\like_client_delegate.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

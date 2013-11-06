@@ -17,8 +17,10 @@ public:
     LikeResult(LikeResultDelegate& delegate);
     ~LikeResult(void);
 
-    void Open(const char* ip, const char* port, const char* user_id);
+    bool Connect(const char* ip, const char* port);
+    void Open(const char* user_id);
     void Close(void);
+    void Disconnect(void);
     void Write(const chat_message& msg);
 
 

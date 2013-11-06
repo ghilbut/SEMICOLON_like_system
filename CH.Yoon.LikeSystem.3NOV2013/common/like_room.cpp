@@ -1,5 +1,6 @@
 #include "like_room.h"
 #include "like_session.h"
+#include <boost/assert.hpp>
 
 
 LikeRoom::LikeRoom(void) 
@@ -16,12 +17,17 @@ bool LikeRoom::SetHost(LikeSessionPtr session) {
         return false;
     }
     host_ = session;
+    // TODO(jh81.kim): test
+    host_->Like(11);
     return true;
 }
 
 void LikeRoom::SetGuest(LikeSessionPtr session) {
     guests_.insert(session);
     session->BindDelegate(this);
+
+    // TODO(jh81.kim): test
+    session->AlreadyLike(false);
 }
 
 void LikeRoom::Close(void) {
@@ -35,21 +41,27 @@ void LikeRoom::Close(void) {
 }
 
 void LikeRoom::OnOpen(LikeSessionPtr session, const std::string& user) {
-    // nothing, server only event
+    BOOST_ASSERT_MSG(false, "[ERROR] server event only.\n");
 }
 
 void LikeRoom::OnClose(LikeSessionPtr session, const std::string& user) {
-    // nothing, server only event
+    // TODO(jh81.kim): relay to server
 }
 
 void LikeRoom::OnJoin(LikeSessionPtr session, const std::string& user, const std::string& target) {
-    // nothing, server only event
+    BOOST_ASSERT_MSG(false, "[ERROR] server event only.\n");
 }
 
-void LikeRoom::OnLike(bool like) {
-    printf("[INFO] LikeRoom::OnLike");
+void LikeRoom::OnLike(LikeSessionPtr session, bool like) {
+
+    // TODO(jh81.kim): test
+    // check like is correct
+    session->AlreadyLike(like);
 }
 
 void LikeRoom::OnDisconnected(LikeSessionPtr session) {
     printf("[INFO] LikeRoom::OnDisconnected");
+    if (host_ == session) {
+        host_.reset();
+    }
 }

@@ -3,9 +3,10 @@
 
 class LikeResultDelegate {
 public:
-    virtual void OnOpened(void) = 0;
-    virtual void OnClosed(void) = 0;
+    virtual void OnConnected(void) = 0;
     virtual void OnLikeCount(unsigned int count) = 0;
+    virtual void OnClosed(void) = 0;
+    virtual void OnDisconnected(void) = 0;
 
 protected:
     ~LikeResultDelegate(void) {}

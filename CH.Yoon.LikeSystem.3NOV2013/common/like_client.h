@@ -18,10 +18,14 @@ public:
   LikeClient(LikeClientDelegate& delegate);
   ~LikeClient(void);
 
-  void Open(const char* ip, const char* port, const char* user_id, const char* target);
-  void Close(void);
-  void Write(const chat_message& msg);
+  bool Connect(const char* ip, const char* port);
+  void Join(const char* user_id, const char* target);
   void Like(bool like);
+  void Leave(void);
+  void Disconnect(void);
+
+  void Write(const chat_message& msg);
+  
   
 
 private:

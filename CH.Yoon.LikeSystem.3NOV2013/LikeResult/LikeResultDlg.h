@@ -31,16 +31,19 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 
+    afx_msg void OnBnClickedConnect();
     afx_msg void OnBnClickedOpen();
     afx_msg void OnBnClickedClose();
+    afx_msg void OnBnClickedDisconnect();
     virtual void OnCancel();
 	DECLARE_MESSAGE_MAP()
 
 
 private:
-    virtual void OnOpened(void);
-    virtual void OnClosed(void);
+    virtual void OnConnected(void);
     virtual void OnLikeCount(unsigned int count);
+    virtual void OnClosed(void);
+    virtual void OnDisconnected(void);
 
 
 private:

@@ -17,7 +17,7 @@ public:
     // LikeClient
     virtual void OnJoin(LikeSessionPtr session, const std::string& user, const std::string& target) = 0;
     // OnLeave() // LikeClient
-    virtual void OnLike(bool like) = 0;
+    virtual void OnLike(LikeSessionPtr session, bool like) = 0;
     // common
     virtual void OnDisconnected(LikeSessionPtr session) = 0;
 

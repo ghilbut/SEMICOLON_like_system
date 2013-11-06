@@ -21,7 +21,7 @@ private:
     virtual void OnOpen(LikeSessionPtr session, const std::string& user);
     virtual void OnClose(LikeSessionPtr session, const std::string& user);
     virtual void OnJoin(LikeSessionPtr session, const std::string& user, const std::string& target);
-    virtual void OnLike(bool like);
+    virtual void OnLike(LikeSessionPtr session, bool like);
     virtual void OnDisconnected(LikeSessionPtr session);
 
 
