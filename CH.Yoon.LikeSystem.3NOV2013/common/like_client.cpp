@@ -4,14 +4,15 @@
 #include <boost/bind.hpp>
 
 
-LikeClient::LikeClient(LikeClientDelegate& delegate)
-    : delegate_(delegate)
+LikeClient::LikeClient(boost::asio::io_service& io_service, LikeClientDelegate& delegate)
+    : io_service_(io_service)
+    , delegate_(delegate)
     , socket_(io_service_) {
     // nothing
 }
 
 LikeClient::~LikeClient(void) {
-    io_service_.reset();
+     // nothing
 }
 
 bool LikeClient::Connect(const char* ip, const char* port) {
@@ -20,13 +21,10 @@ bool LikeClient::Connect(const char* ip, const char* port) {
         return false;
     }
 
-    io_service_.reset();
     Tcp::resolver resolver(io_service_);
     Tcp::resolver::query query(ip, port);
     Tcp::resolver::iterator iterator = resolver.resolve(query);
     boost::asio::async_connect(socket_, iterator, boost::bind(&LikeClient::handle_connect, this, boost::asio::placeholders::error));
-    thread_.swap(boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
-    thread_.detach();
 
     return true;
 }
@@ -54,7 +52,7 @@ void LikeClient::Like(bool like) {
 
     Json::Value root(Json::objectValue);
     root["query"] = "like";
-    // root["user"] = user_id_;
+    root["user"] = user_id_;
     // root["target"] = target_;
     root["like"] = like;
     Json::FastWriter writer;
@@ -105,7 +103,7 @@ void LikeClient::handle_connect(const boost::system::error_code& error) {
             , boost::asio::buffer(read_msg_.data(), chat_message::header_length)
             , boost::bind(&LikeClient::handle_read_header, this, boost::asio::placeholders::error));
     } else {
-        printf("[ERROR] %s\n", error.message().c_str());
+        do_close();
     }
 }
 
@@ -131,10 +129,6 @@ void LikeClient::handle_read_body(const boost::system::error_code& error)
 
 
 
-
-
-        // TODO(jh81.kim): update like status
-
         const char* begin = read_msg_.body();
         const char* end = begin + read_msg_.body_length();
         const std::string json(begin, end);
@@ -155,8 +149,6 @@ void LikeClient::handle_read_body(const boost::system::error_code& error)
         } else {
             // nothing
         }
-
-
 
 
 
@@ -189,6 +181,8 @@ void LikeClient::do_write(chat_message msg) {
 }
 
 void LikeClient::do_close(void) {
-    socket_.close();
-    io_service_.post(boost::bind(&LikeClientDelegate::OnDisconnected, &delegate_));
+    if (socket_.is_open()) {
+        socket_.close();
+        delegate_.OnDisconnected();
+    }
 }

@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\common\like_count.cpp" />
     <ClCompile Include="..\common\like_room.cpp" />
     <ClCompile Include="..\common\like_server.cpp" />
     <ClCompile Include="..\common\like_session.cpp">
@@ -92,6 +93,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\like_count.h" />
     <ClInclude Include="..\common\like_message.h" />
     <ClInclude Include="..\common\like_room.h" />
     <ClInclude Include="..\common\like_server.h" />

@@ -36,7 +36,7 @@ void LikeSession::Like(unsigned int count) {
     msg.body_length(json.length());
     msg.encode_header();
 
-    io_service_.post(boost::bind(&LikeSession::do_write, shared_from_this(), msg));
+    Write(msg);
 }
 
 void LikeSession::AlreadyLike(bool like) {
@@ -52,11 +52,15 @@ void LikeSession::AlreadyLike(bool like) {
     msg.body_length(json.length());
     msg.encode_header();
 
-    io_service_.post(boost::bind(&LikeSession::do_write, shared_from_this(), msg));
+    Write(msg);
 }
 
 void LikeSession::Close(void) {
-    socket_.close();
+    do_close();
+}
+
+void LikeSession::Write(chat_message msg) {
+    io_service_.post(boost::bind(&LikeSession::do_write, shared_from_this(), msg));
 }
 
 Tcp::socket& LikeSession::socket(void) {
@@ -79,7 +83,7 @@ void LikeSession::handle_read_header(const boost::system::error_code& error) {
             , boost::asio::buffer(read_msg_.body(), read_msg_.body_length())
             , boost::bind(&LikeSession::handle_read_body, shared_from_this(), boost::asio::placeholders::error));
     } else {
-        //io_service_.post(boost::bind(&LikeSessionDelegate::OnDisconnected, delegate_, shared_from_this()));
+        do_close();
     }
 }
 
@@ -129,13 +133,15 @@ void LikeSession::handle_read_body(const boost::system::error_code& error) {
                 io_service_.post(boost::bind(&LikeSessionDelegate::OnJoin, delegate_, shared_from_this(), param1, param2));
             }
         } else if (query == "like") {
+            const Json::Value& user = root["user"];
             const Json::Value& like = root["like"];
             if (like.isBool()) {
-                bool param = like.asBool();
-                io_service_.post(boost::bind(&LikeSessionDelegate::OnLike, delegate_, shared_from_this(), param));
+                const std::string param1 = user.asString();
+                bool param2 = like.asBool();
+                io_service_.post(boost::bind(&LikeSessionDelegate::OnLike, delegate_, shared_from_this(), param1, param2));
             }
         } else if (query == "leave") {
-            // TODO(jh81.kim): 
+            io_service_.post(boost::bind(&LikeSessionDelegate::OnLeave, delegate_, shared_from_this()));
         } else {
             // nothing
         }
@@ -145,7 +151,7 @@ void LikeSession::handle_read_body(const boost::system::error_code& error) {
 
 
     } else {
-        //io_service_.post(boost::bind(&LikeSessionDelegate::OnDisconnected, delegate_, shared_from_this()));
+        do_close();
     }
 }
 
@@ -158,7 +164,7 @@ void LikeSession::handle_write(const boost::system::error_code& error) {
                 , boost::bind(&LikeSession::handle_write, shared_from_this(), boost::asio::placeholders::error));
         }
     } else {
-        //io_service_.post(boost::bind(&LikeSessionDelegate::OnDisconnected, delegate_, shared_from_this()));
+        do_close();
     }
 }
 
@@ -170,4 +176,9 @@ void LikeSession::do_write(chat_message msg) {
             , boost::asio::buffer(write_msgs_.front().data(), write_msgs_.front().length())
             , boost::bind(&LikeSession::handle_write, this, boost::asio::placeholders::error));
     }
+}
+
+void LikeSession::do_close(void) {
+    socket_.close();
+    io_service_.post(boost::bind(&LikeSessionDelegate::OnDisconnected, delegate_, shared_from_this()));
 }

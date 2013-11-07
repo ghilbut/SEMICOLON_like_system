@@ -3,7 +3,6 @@
 
 #include "like_message.h"
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
 #include <deque>
 
 
@@ -15,7 +14,7 @@ typedef std::deque<chat_message> chat_message_queue;
 class LikeClient
 {
 public:
-  LikeClient(LikeClientDelegate& delegate);
+  LikeClient(boost::asio::io_service& io_service, LikeClientDelegate& delegate);
   ~LikeClient(void);
 
   bool Connect(const char* ip, const char* port);
@@ -25,8 +24,7 @@ public:
   void Disconnect(void);
 
   void Write(const chat_message& msg);
-  
-  
+
 
 private:
     void handle_connect(const boost::system::error_code& error);
@@ -39,16 +37,14 @@ private:
 
 
 private:
-    LikeClientDelegate& delegate_;
-    std::string user_id_;
-    std::string target_;
-
-    boost::asio::io_service io_service_;
-    boost::thread thread_;
-
+    boost::asio::io_service& io_service_;
     Tcp::socket socket_;
     chat_message read_msg_;
     chat_message_queue write_msgs_;
+
+    LikeClientDelegate& delegate_;
+    std::string user_id_;
+    std::string target_;
 };
 
 #endif  // LIKE_CLIENT_H_

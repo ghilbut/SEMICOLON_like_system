@@ -6,8 +6,8 @@
 #include <cstdio>
 
 
-std::string g_filepath;
-Json::Value g_root(Json::objectValue);
+static std::string g_filepath;
+static Json::Value g_root(Json::objectValue);
 
 void Save(void) {
     Json::StyledWriter writer;
@@ -84,13 +84,13 @@ int main(const int argc, const char** argv) {
         return -1;
     }
 
-    // atexit(Save);
+    atexit(Save);
 
     try {
         boost::asio::io_service io_service;
         // const Tcp::endpoint endpoint(Tcp::v4(), port);
         const Tcp::endpoint endpoint(boost::asio::ip::address::from_string(ip), port);
-        LikeServer server(io_service, endpoint);
+        LikeServer server(root, io_service, endpoint);
         printf("[INFO] run server.\n", filepath.c_str());
         io_service.run();
     } catch (std::exception& e) {

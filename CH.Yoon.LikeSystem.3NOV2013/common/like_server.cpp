@@ -5,11 +5,20 @@
 #include <boost/bind.hpp>
 
 
-LikeServer::LikeServer(boost::asio::io_service& io_service, const Tcp::endpoint& endpoint)
-    : io_service_(io_service)
+LikeServer::LikeServer(Json::Value& json, boost::asio::io_service& io_service, const Tcp::endpoint& endpoint)
+    : json_(json)
+    , io_service_(io_service)
     , acceptor_(io_service, endpoint) {
     acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
     start_accept();
+}
+
+void LikeServer::Stop(void) {
+    std::set<LikeSessionPtr>::iterator itr = session_list_.begin();
+    std::set<LikeSessionPtr>::iterator end = session_list_.end();
+    for (; itr != end; ++itr) {
+        (*itr)->Close();
+    }
 }
 
 void LikeServer::start_accept(void) {
@@ -32,11 +41,16 @@ void LikeServer::handle_accept(LikeSessionPtr session, const boost::system::erro
 void LikeServer::OnOpen(LikeSessionPtr session, const std::string& user) {
     printf("[INFO] LikeServer::OnOpen(%s)\n", user.c_str());
 
+    if (!json_.isMember(user)) {
+        printf("[ERROR] invalid user name to create a room (%s).\n", user.c_str());
+        return;
+    }
+
     LikeRoomPtr room;
     std::map<std::string, LikeRoomPtr>::iterator itr = rooms_.find(user);
     if (itr == rooms_.end()) {
         printf("[INFO] create new room (%s).\n", user.c_str());
-        room.reset(new LikeRoom());
+        room.reset(new LikeRoom(json_[user], *this));
         rooms_[user] = room;
     } else {
         printf("[INFO] room is already exists (%s).\n", user.c_str());
@@ -50,10 +64,11 @@ void LikeServer::OnOpen(LikeSessionPtr session, const std::string& user) {
 }
 
 void LikeServer::OnClose(LikeSessionPtr session, const std::string& user) {
+    session->BindDelegate(this);
     std::map<std::string, LikeRoomPtr>::iterator itr = rooms_.find(user);
     if (itr != rooms_.end()) {
         printf("[INFO] close room (%s).\n", user.c_str());
-        (itr->second)->Close();
+        //(itr->second)->Close();
         rooms_.erase(itr);
     } else {
         printf("[WARNING] room to close is not exists (%s).\n", user.c_str());
@@ -70,11 +85,15 @@ void LikeServer::OnJoin(LikeSessionPtr session, const std::string& user, const s
     }
 
     LikeRoom& room = *(itr->second);
-    room.SetGuest(session);
+    room.SetGuest(session, user);
 }
 
-void LikeServer::OnLike(LikeSessionPtr session, bool like) {
+void LikeServer::OnLike(LikeSessionPtr session, const std::string& user, bool like) {
     BOOST_ASSERT_MSG(false, "[ERROR] room only event.");
+}
+
+void LikeServer::OnLeave(LikeSessionPtr session) {
+    session->BindDelegate(this);
 }
 
 void LikeServer::OnDisconnected(LikeSessionPtr session) {

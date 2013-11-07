@@ -23,6 +23,8 @@ public:
     void AlreadyLike(bool like);
     void Close(void);
 
+    void Write(chat_message msg);
+
     Tcp::socket& socket(void);
 
 
@@ -33,6 +35,7 @@ private:
     void handle_write(const boost::system::error_code& error);
 
     void do_write(chat_message msg);
+    void do_close(void);
 
 
 private:

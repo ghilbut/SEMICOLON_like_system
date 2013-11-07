@@ -8,8 +8,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef LIKE_MESSAGE_H_
-#define LIKE_MESSAGE_H_
+#ifndef CHAT_MESSAGE_HPP
+#define CHAT_MESSAGE_HPP
 
 #include <cstdio>
 #include <cstdlib>
@@ -90,4 +90,4 @@ private:
   size_t body_length_;
 };
 
-#endif // LIKE_MESSAGE_H_
+#endif // CHAT_MESSAGE_HPP

@@ -18,7 +18,8 @@
 
 
 CLikeResultDlg::CLikeResultDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CLikeResultDlg::IDD, pParent), result_(*this)
+	: CDialogEx(CLikeResultDlg::IDD, pParent)
+    , result_(io_service_, *this)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -36,6 +37,7 @@ BEGIN_MESSAGE_MAP(CLikeResultDlg, CDialogEx)
     ON_BN_CLICKED(IDC_OPEN, &CLikeResultDlg::OnBnClickedOpen)
     ON_BN_CLICKED(IDC_CLOSE, &CLikeResultDlg::OnBnClickedClose)
     ON_BN_CLICKED(IDC_DISCONNECT, &CLikeResultDlg::OnBnClickedDisconnect)
+    ON_MESSAGE(WM_APP+1, &CLikeResultDlg::OnDisconnected)
 END_MESSAGE_MAP()
 
 
@@ -53,7 +55,6 @@ BOOL CLikeResultDlg::OnInitDialog()
 	// TODO: Add extra initialization here
     ::SetDlgItemText(*this, IDC_HOST, _T("127.0.0.1"));
     ::SetDlgItemText(*this, IDC_PORT, _T("8181"));
-    ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
     ::SetDlgItemText(*this, IDC_USER, _T("p0"));
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -97,17 +98,22 @@ HCURSOR CLikeResultDlg::OnQueryDragIcon()
 
 
 
-void CLikeResultDlg::OnBnClickedConnect() {
+void CLikeResultDlg::OnBnClickedConnect(void) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
+
     char ip[260];
     char port[10];
     ::GetDlgItemTextA(*this, IDC_HOST, ip, 260);
     ::GetDlgItemTextA(*this, IDC_PORT, port, 10);
 
+    io_service_.reset();
     result_.Connect(ip, port);
+    thread_.swap(boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
 }
 
-void CLikeResultDlg::OnBnClickedOpen()
-{
+void CLikeResultDlg::OnBnClickedOpen(void) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
+
     wchar_t wuser[260];
     ::GetDlgItemTextW(*this, IDC_USER, wuser, 260);
 
@@ -122,17 +128,34 @@ void CLikeResultDlg::OnBnClickedOpen()
     result_.Open(user);
 }
 
-void CLikeResultDlg::OnBnClickedClose() {
+void CLikeResultDlg::OnBnClickedClose(void) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
     result_.Close();
 }
 
-void CLikeResultDlg::OnBnClickedDisconnect() {
+void CLikeResultDlg::OnBnClickedDisconnect(void) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
     result_.Disconnect();
 }
 
-void CLikeResultDlg::OnCancel() {
-    // TODO: Add your specialized code here and/or call the base class
+LRESULT CLikeResultDlg::OnDisconnected(WPARAM wparam, LPARAM lparam) {
+    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), TRUE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_USER), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
+    ::SetDlgItemTextA(*this, IDC_COUNT, "0");
 
+    if (thread_.joinable()) {
+        thread_.join();
+    }
+    return 0;
+}
+
+void CLikeResultDlg::OnCancel(void) {
+    result_.Disconnect();
     CDialogEx::OnCancel();
 }
 
@@ -174,12 +197,5 @@ void CLikeResultDlg::OnClosed(void) {
 }
 
 void CLikeResultDlg::OnDisconnected(void) {
-    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_USER), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
-    ::SetDlgItemTextA(*this, IDC_COUNT, "0");
+    ::PostMessage(*this, WM_APP+1, 0, 0);
 }

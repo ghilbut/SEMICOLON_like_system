@@ -6,6 +6,8 @@
 
 #include "like_client.h"
 #include "like_client_delegate.h"
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
 
 
 // CLikeClientDlg dialog
@@ -31,13 +33,14 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 
-    afx_msg void OnBnClickedConnect();
-    afx_msg void OnBnClickedJoin();
-    afx_msg void OnBnClickedLeave();
-    afx_msg void OnBnClickedLike();
-    afx_msg void OnBnClickedLikeCancel();
-    afx_msg void OnBnClickedDisconnect();
-    virtual void OnCancel();
+    afx_msg void OnBnClickedConnect(void);
+    afx_msg void OnBnClickedJoin(void);
+    afx_msg void OnBnClickedLeave(void);
+    afx_msg void OnBnClickedLike(void);
+    afx_msg void OnBnClickedLikeCancel(void);
+    afx_msg void OnBnClickedDisconnect(void);
+    afx_msg LRESULT OnDisconnected(WPARAM wparam, LPARAM lparam);
+    virtual void OnCancel(void);
 	DECLARE_MESSAGE_MAP()
 
 
@@ -49,5 +52,7 @@ private:
 
 
 private:
+    boost::asio::io_service io_service_;
+    boost::thread thread_;
     LikeClient client_;
 };

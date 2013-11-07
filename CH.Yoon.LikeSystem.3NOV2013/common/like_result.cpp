@@ -5,14 +5,15 @@
 #include <boost/bind.hpp>
 
 
-LikeResult::LikeResult(LikeResultDelegate& delegate)
-    : delegate_(delegate)
-    , socket_(io_service_) {
+LikeResult::LikeResult(boost::asio::io_service& io_service, LikeResultDelegate& delegate)
+    : io_service_(io_service)
+    , socket_(io_service_) 
+    , delegate_(delegate) {
     // nothing
 }
 
 LikeResult::~LikeResult(void) {
-    io_service_.reset();
+    // nothing
 }
 
 bool LikeResult::Connect(const char* ip, const char* port) {
@@ -21,13 +22,10 @@ bool LikeResult::Connect(const char* ip, const char* port) {
         return false;
     }
 
-    io_service_.reset();
     Tcp::resolver resolver(io_service_);
     Tcp::resolver::query query(ip, port);
     Tcp::resolver::iterator iterator = resolver.resolve(query);
     boost::asio::async_connect(socket_, iterator, boost::bind(&LikeResult::handle_connect, this, boost::asio::placeholders::error));
-    thread_.swap(boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
-    thread_.detach();
 
     return true;
 }
@@ -68,9 +66,7 @@ void LikeResult::Close(void) {
 }
 
 void LikeResult::Disconnect(void) {
-    if (socket_.is_open()) {
-        io_service_.post(boost::bind(&LikeResult::do_close, this));
-    }
+    io_service_.post(boost::bind(&LikeResult::do_close, this));
 }
 
 void LikeResult::Write(const chat_message& msg) {
@@ -86,7 +82,8 @@ void LikeResult::handle_connect(const boost::system::error_code& error) {
 
         io_service_.post(boost::bind(&LikeResultDelegate::OnConnected, &delegate_));
     } else {
-        printf("[ERROR] %s\n", error.message().c_str());
+        //printf("[ERROR] %s\n", error.message().c_str());
+        do_close();
     }
 }
 
@@ -169,6 +166,8 @@ void LikeResult::do_write(chat_message msg) {
 }
 
 void LikeResult::do_close(void) {
-    socket_.close();
-    io_service_.post(boost::bind(&LikeResultDelegate::OnDisconnected, &delegate_));
+    if (socket_.is_open()) {
+        socket_.close();
+        delegate_.OnDisconnected();
+    }
 }

@@ -6,6 +6,8 @@
 
 #include "like_result.h"
 #include "like_result_delegate.h"
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
 
 
 // CLikeResultDlg dialog
@@ -31,11 +33,12 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 
-    afx_msg void OnBnClickedConnect();
-    afx_msg void OnBnClickedOpen();
-    afx_msg void OnBnClickedClose();
-    afx_msg void OnBnClickedDisconnect();
-    virtual void OnCancel();
+    afx_msg void OnBnClickedConnect(void);
+    afx_msg void OnBnClickedOpen(void);
+    afx_msg void OnBnClickedClose(void);
+    afx_msg void OnBnClickedDisconnect(void);
+    afx_msg LRESULT OnDisconnected(WPARAM wparam, LPARAM lparam);
+    virtual void OnCancel(void);
 	DECLARE_MESSAGE_MAP()
 
 
@@ -47,5 +50,7 @@ private:
 
 
 private:
+    boost::asio::io_service io_service_;
+    boost::thread thread_;
     LikeResult result_;
 };
