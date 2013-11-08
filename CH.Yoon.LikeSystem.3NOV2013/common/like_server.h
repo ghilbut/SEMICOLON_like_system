@@ -36,6 +36,7 @@ private:
     boost::asio::io_service& io_service_;
     Tcp::acceptor acceptor_;
 
+	std::map<std::string, bool> roomName_;
     std::set<LikeSessionPtr> session_list_;
     std::map<std::string, LikeRoomPtr> rooms_;
 };

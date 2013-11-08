@@ -19,7 +19,7 @@ public:
 
     void BindDelegate(LikeSessionDelegate* delegate);
     void Start(void);
-    void Like(unsigned int count);
+    void Like(unsigned int count, std::string &name);
     void AlreadyLike(bool like);
     void Close(void);
 

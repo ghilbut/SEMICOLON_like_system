@@ -5,7 +5,7 @@
 
 
 LikeRoom::LikeRoom(Json::Value& json, LikeSessionDelegate& delegate) 
-    : count_(json), delegate_(delegate), host_(0) {
+    : count_(json), delegate_(delegate) {
     printf("[INFO] room is constructed.\n");
 }
 
@@ -19,7 +19,7 @@ bool LikeRoom::SetHost(LikeSessionPtr session) {
     }
     host_ = session;
     host_->BindDelegate(this);
-    host_->Like(count_.Size());
+    host_->Like(count_.Size(), name_);
     return true;
 }
 
@@ -74,7 +74,7 @@ void LikeRoom::OnJoin(LikeSessionPtr session, const std::string& user, const std
 void LikeRoom::OnLike(LikeSessionPtr session, const std::string& user, bool like) {
 
     const unsigned int count = count_.Like(user, like);
-    host_->Like(count);
+    host_->Like(count, name_);
     session->AlreadyLike(like);
 }
 

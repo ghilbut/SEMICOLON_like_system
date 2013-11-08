@@ -77,13 +77,11 @@ int main(const int argc, const char** argv) {
         printf("[ERROR] getting port number failed from \"%s\".\n", sport);
         return -1;
     }
-
     Json::Value& root(g_root);
     if (!ReadJson(filepath.c_str(), root)) {
         printf("[ERROR] read json failed from \"%s\" file.\n", filepath.c_str());
         return -1;
     }
-
     atexit(Save);
 
     try {
