@@ -2,7 +2,14 @@
 # CH.Yoon.LikeSystem.3NOV2013
 #################
 
+# c/c++ build results
+*.o
+*.lib
+
+# test data
 LikeServer.json
+
+
 
 
 
