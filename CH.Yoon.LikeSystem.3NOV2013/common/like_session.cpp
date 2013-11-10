@@ -23,12 +23,12 @@ void LikeSession::Start(void) {
         , boost::bind(&LikeSession::handle_read_header, shared_from_this(), boost::asio::placeholders::error));
 }
 
-void LikeSession::Like(unsigned int count, std::string &name) {
+void LikeSession::Like(const std::string& name, unsigned int count) {
 
     Json::Value root(Json::objectValue);
     root["query"] = "like";
+    root["room"]  = name;
     root["count"] = count;
-	root["room"] = name;
     Json::FastWriter writer;
     const std::string json = writer.write(root);
 

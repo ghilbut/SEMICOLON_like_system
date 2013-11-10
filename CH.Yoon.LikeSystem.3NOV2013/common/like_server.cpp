@@ -88,7 +88,7 @@ void LikeServer::OnOpen(LikeSessionPtr session, const std::string& user) {
         printf("[INFO] create new room (%s / %s).\n", user.c_str(), name.c_str());
         room.reset(new LikeRoom(json_[user], *this));
         rooms_[user] = room;
-		room.get()->setName(name);
+		room.get()->set_name(name);
     } else {
         printf("[INFO] room is already exists (%s).\n", user.c_str());
         room = itr->second;
@@ -106,7 +106,7 @@ void LikeServer::OnClose(LikeSessionPtr session, const std::string& user) {
     if (itr != rooms_.end()) {
         printf("[INFO] close room (%s).\n", user.c_str());
         //(itr->second)->Close();
-		std::string name = (*itr).second.get()->getName();
+		std::string name = (*itr).second.get()->name();
 		roomName_[name] = false;
         rooms_.erase(itr);
     } else {

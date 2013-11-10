@@ -19,7 +19,7 @@ bool LikeRoom::SetHost(LikeSessionPtr session) {
     }
     host_ = session;
     host_->BindDelegate(this);
-    host_->Like(count_.Size(), name_);
+    host_->Like(name_, count_.Size());
     return true;
 }
 
@@ -74,7 +74,7 @@ void LikeRoom::OnJoin(LikeSessionPtr session, const std::string& user, const std
 void LikeRoom::OnLike(LikeSessionPtr session, const std::string& user, bool like) {
 
     const unsigned int count = count_.Like(user, like);
-    host_->Like(count, name_);
+    host_->Like(name_, count);
     session->AlreadyLike(like);
 }
 

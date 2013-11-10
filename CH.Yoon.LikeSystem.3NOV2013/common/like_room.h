@@ -18,8 +18,8 @@ public:
     void SetGuest(LikeSessionPtr session, const std::string& user);
     void Close(void);
 
-	std::string getName() { return name_; }
-	void setName(std::string name) { name_ = name; }
+	const std::string& name(void) const { return name_; }
+	void set_name(const std::string& name) { name_ = name; }
 
 private:
     virtual void OnOpen(LikeSessionPtr session, const std::string& user);
@@ -31,11 +31,11 @@ private:
 
 
 private:
+    std::string name_;
     LikeCount count_;
     LikeSessionDelegate& delegate_;
     LikeSessionPtr host_;
     Guests guests_;
-	std::string name_;
 };
 
 #endif  // LIKE_ROOM_H_

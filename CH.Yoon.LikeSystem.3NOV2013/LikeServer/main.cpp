@@ -6,17 +6,6 @@
 #include <cstdio>
 
 
-static std::string g_filepath;
-static Json::Value g_root(Json::objectValue);
-
-void Save(void) {
-    Json::StyledWriter writer;
-    const std::string json = writer.write(g_root);
-    FILE* fp = fopen(g_filepath.c_str(), "w");
-    fwrite(json.c_str(), sizeof(char), json.length(), fp);
-    fclose(fp);
-}
-
 bool GetPort(const char* sport, int& port) {
     char* end;
     port = strtol(sport, &end, 10);
@@ -69,20 +58,19 @@ int main(const int argc, const char** argv) {
 
     const char* ip = argv[1];
     const char* sport = argv[2];
-    std::string& filepath(g_filepath);
-    filepath = argv[3];
+    const std::string& filepath = argv[3];
 
     int port = 0;
     if (!GetPort(sport, port)) {
         printf("[ERROR] getting port number failed from \"%s\".\n", sport);
         return -1;
     }
-    Json::Value& root(g_root);
+
+    Json::Value root(Json::objectValue);
     if (!ReadJson(filepath.c_str(), root)) {
         printf("[ERROR] read json failed from \"%s\" file.\n", filepath.c_str());
         return -1;
     }
-    atexit(Save);
 
     try {
         boost::asio::io_service io_service;
