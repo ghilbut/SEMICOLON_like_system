@@ -55,7 +55,6 @@ BOOL CLikeResultDlg::OnInitDialog()
 	// TODO: Add extra initialization here
     ::SetDlgItemText(*this, IDC_HOST, _T("127.0.0.1"));
     ::SetDlgItemText(*this, IDC_PORT, _T("8181"));
-    ::SetDlgItemText(*this, IDC_USER, _T("p0"));
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -113,19 +112,7 @@ void CLikeResultDlg::OnBnClickedConnect(void) {
 
 void CLikeResultDlg::OnBnClickedOpen(void) {
     ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
-
-    wchar_t wuser[260];
-    ::GetDlgItemTextW(*this, IDC_USER, wuser, 260);
-
-    char user[260] = "";
-    const int size = WideCharToMultiByte(CP_UTF8, 0, wuser, wcslen(wuser), user, 260, 0, 0);
-    if (size == 0) {
-        // TODO(jh81.kim): error handling with size
-        // see: http://msdn.microsoft.com/en-us/library/dd374130.aspx
-        return;
-    }
-
-    result_.Open(user);
+    result_.Open();
 }
 
 void CLikeResultDlg::OnBnClickedClose(void) {
@@ -139,11 +126,11 @@ void CLikeResultDlg::OnBnClickedDisconnect(void) {
 }
 
 LRESULT CLikeResultDlg::OnDisconnected(WPARAM wparam, LPARAM lparam) {
+    ::SetDlgItemTextW(*this, IDC_NAME, L"");
     ::EnableWindow(::GetDlgItem(*this, IDC_HOST), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_PORT), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_USER), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
     ::SetDlgItemTextA(*this, IDC_COUNT, "0");
@@ -166,32 +153,41 @@ void CLikeResultDlg::OnConnected(void) {
     ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_USER), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
     ::SetDlgItemTextA(*this, IDC_COUNT, "0");
+}
+
+void CLikeResultDlg::OnOpened(const std::string& name) {
+
+    wchar_t wname[260] = L"";
+    if (::MultiByteToWideChar(CP_UTF8, 0, name.c_str(), name.length(), wname, 260) == 0) {
+        // TODO(jh81.kim): error handling with size
+        // see: http://msdn.microsoft.com/en-us/library/dd374130.aspx
+        return;
+    }
+    ::SetDlgItemTextW(*this, IDC_NAME, wname);
+
+    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), TRUE);
 }
 
 void CLikeResultDlg::OnLikeCount(unsigned int count) {
     char text[10];
     sprintf(text, "%u", count);
     ::SetDlgItemTextA(*this, IDC_COUNT, text);
-
-    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_USER), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), TRUE);
 }
 
 void CLikeResultDlg::OnClosed(void) {
+    ::SetDlgItemTextW(*this, IDC_NAME, L"");
     ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_USER), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
 }

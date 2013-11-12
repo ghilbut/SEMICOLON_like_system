@@ -4,23 +4,14 @@
 #include <boost/assert.hpp>
 
 
-LikeRoom::LikeRoom(Json::Value& json, LikeSessionDelegate& delegate) 
-    : count_(json), delegate_(delegate) {
+LikeRoom::LikeRoom(const std::string& name, LikeSessionPtr& session, LikeSessionDelegate& delegate) 
+    : name_(name), host_(session), delegate_(delegate) {
     printf("[INFO] room is constructed.\n");
+    host_->BindDelegate(this);
 }
 
 LikeRoom::~LikeRoom(void) {
     printf("[INFO] room is distructed.\n");
-}
-
-bool LikeRoom::SetHost(LikeSessionPtr session) {
-    if (host_.get() != 0) {
-        return false;
-    }
-    host_ = session;
-    host_->BindDelegate(this);
-    host_->Like(name_, count_.Size());
-    return true;
 }
 
 void LikeRoom::SetGuest(LikeSessionPtr session, const std::string& user) {
@@ -41,12 +32,17 @@ void LikeRoom::Close(void) {
     }
 }
 
-void LikeRoom::OnOpen(LikeSessionPtr session, const std::string& user) {
+const std::string& LikeRoom::name(void) const {
+    return name_;
+}
+
+void LikeRoom::OnOpen(LikeSessionPtr session) {
     BOOST_ASSERT_MSG(false, "[ERROR] server event only.\n");
 }
 
-void LikeRoom::OnClose(LikeSessionPtr session, const std::string& user) {
+void LikeRoom::OnClose(LikeSessionPtr session, const std::string& name) {
     BOOST_ASSERT_MSG(host_ == session, "[ERROR] host only could close room.\n");
+    BOOST_ASSERT_MSG(name_ == name, "[ERROR] local name and event name is not matched.\n");
 
     Json::Value root(Json::objectValue);
     root["query"] = "close";
@@ -64,7 +60,7 @@ void LikeRoom::OnClose(LikeSessionPtr session, const std::string& user) {
         (*itr)->Write(msg);
         delegate_.OnLeave(session);
     }
-    delegate_.OnClose(session, user);
+    delegate_.OnClose(session, name_);
 }
 
 void LikeRoom::OnJoin(LikeSessionPtr session, const std::string& user, const std::string& target) {
@@ -89,6 +85,6 @@ void LikeRoom::OnLeave(LikeSessionPtr session) {
 void LikeRoom::OnDisconnected(LikeSessionPtr session) {
     printf("[INFO] LikeRoom::OnDisconnected()\n");
     if (host_ == session) {
-        host_.reset();
+        OnClose(host_, name_);
     }
 }

@@ -17,7 +17,7 @@ public:
     ~LikeResult(void);
 
     bool Connect(const char* ip, const char* port);
-    void Open(const char* user_id);
+    void Open(void);
     void Close(void);
     void Disconnect(void);
     void Write(const chat_message& msg);
@@ -40,7 +40,7 @@ private:
     chat_message_queue write_msgs_;
 
     LikeResultDelegate& delegate_;
-    std::string user_id_;
+    std::string name_;
 };
 
 #endif  // LIKE_RESULT_H_

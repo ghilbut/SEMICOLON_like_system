@@ -12,32 +12,11 @@ LikeServer::LikeServer(Json::Value& json, boost::asio::io_service& io_service, c
     acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
     start_accept();
 
-	roomName_.insert(std::pair<std::string, bool>("apple", false));
-	roomName_.insert(std::pair<std::string, bool>("avocado", false));
-	roomName_.insert(std::pair<std::string, bool>("banana", false));
-	roomName_.insert(std::pair<std::string, bool>("blackberry", false));
-	roomName_.insert(std::pair<std::string, bool>("cantloupe", false));
-	roomName_.insert(std::pair<std::string, bool>("cherry", false));
-	roomName_.insert(std::pair<std::string, bool>("chili", false));
-	roomName_.insert(std::pair<std::string, bool>("coconut", false));
-	roomName_.insert(std::pair<std::string, bool>("durian", false));
-	roomName_.insert(std::pair<std::string, bool>("graph", false));
-	roomName_.insert(std::pair<std::string, bool>("guava", false));
-	roomName_.insert(std::pair<std::string, bool>("huckleberry", false));
-	roomName_.insert(std::pair<std::string, bool>("honeydew", false));
-	roomName_.insert(std::pair<std::string, bool>("kiwi", false));
-	roomName_.insert(std::pair<std::string, bool>("lemon", false));
-	roomName_.insert(std::pair<std::string, bool>("lime", false));
-	roomName_.insert(std::pair<std::string, bool>("mango", false));
-	roomName_.insert(std::pair<std::string, bool>("melon", false));
-	roomName_.insert(std::pair<std::string, bool>("orange", false));
-	roomName_.insert(std::pair<std::string, bool>("papaya", false));
-	roomName_.insert(std::pair<std::string, bool>("peach", false));
-	roomName_.insert(std::pair<std::string, bool>("pepper", false));
-	roomName_.insert(std::pair<std::string, bool>("pear", false));
-	roomName_.insert(std::pair<std::string, bool>("pineapple", false));
-	roomName_.insert(std::pair<std::string, bool>("strawberry", false));
-	roomName_.insert(std::pair<std::string, bool>("tomato", false));
+    const size_t size = json.size();
+    for (size_t index = 0; index < size; ++index) {
+        json.begin();
+        unused_names_.insert(json[index].asString());
+    }
 }
 
 void LikeServer::Stop(void) {
@@ -65,52 +44,74 @@ void LikeServer::handle_accept(LikeSessionPtr session, const boost::system::erro
     start_accept();
 }
 
-void LikeServer::OnOpen(LikeSessionPtr session, const std::string& user) {
-    printf("[INFO] LikeServer::OnOpen(%s)\n", user.c_str());
-/*
-    if (!json_.isMember(user)) {
-        printf("[ERROR] invalid user name to create a room (%s).\n", user.c_str());
+void LikeServer::OnOpen(LikeSessionPtr session) {
+    printf("[INFO] LikeServer::OnOpen()\n");
+
+    Json::Value root(Json::objectValue);
+    root["query"] = "opened";
+    root["success"] = false;
+
+    if (unused_names_.empty()) {
+        printf("[ERROR] every room names are used.\n");
+
+        Json::FastWriter writer;
+        const std::string json = writer.write(root);
+
+        chat_message msg;
+        msg.body_length(json.length());
+        strcpy(msg.body(), json.c_str());
+        msg.encode_header();
+        session->Write(msg);
+
         return;
     }
-*/
-    LikeRoomPtr room;
-    std::map<std::string, LikeRoomPtr>::iterator itr = rooms_.find(user);
-    if (itr == rooms_.end()) {
-		std::map<std::string, bool>::iterator i = roomName_.begin();
-		while (i != roomName_.end()) {
-			if ((*i).second == false) {
-				(*i).second = true;
-				break;
-			}
-			i++;
-		}
-		std::string name = (*i).first;
-        printf("[INFO] create new room (%s / %s).\n", user.c_str(), name.c_str());
-        room.reset(new LikeRoom(json_[user], *this));
-        rooms_[user] = room;
-		room.get()->set_name(name);
-    } else {
-        printf("[INFO] room is already exists (%s).\n", user.c_str());
-        room = itr->second;
+
+    const std::string& name = *(unused_names_.begin());
+    if (rooms_.find(name) != rooms_.end()) {
+        BOOST_ASSERT(false);
+        printf("[ERROR] room is already exists (%s).\n", name.c_str());
+
+        Json::FastWriter writer;
+        const std::string json = writer.write(root);
+
+        chat_message msg;
+        msg.body_length(json.length());
+        strcpy(msg.body(), json.c_str());
+        msg.encode_header();
+        session->Write(msg);
+
+        return;
     }
 
-    if (!room->SetHost(session)) {
-        printf("[WARNING] host is already exists (%s).\n", user.c_str());
-        session->Close();
-    }
+    printf("[INFO] create new room (%s).\n", name.c_str());
+
+    LikeRoomPtr room(new LikeRoom(name, session, *this));
+    rooms_[name] = room;
+
+    root["success"] = true;
+    root["name"] = name;
+
+    Json::FastWriter writer;
+    const std::string json = writer.write(root);
+
+    chat_message msg;
+    msg.body_length(json.length());
+    strcpy(msg.body(), json.c_str());
+    msg.encode_header();
+    session->Write(msg);
 }
 
-void LikeServer::OnClose(LikeSessionPtr session, const std::string& user) {
+void LikeServer::OnClose(LikeSessionPtr session, const std::string& name) {
     session->BindDelegate(this);
-    std::map<std::string, LikeRoomPtr>::iterator itr = rooms_.find(user);
+    std::map<std::string, LikeRoomPtr>::iterator itr = rooms_.find(name);
     if (itr != rooms_.end()) {
-        printf("[INFO] close room (%s).\n", user.c_str());
+        printf("[INFO] close room (%s).\n", name.c_str());
         //(itr->second)->Close();
-		std::string name = (*itr).second.get()->name();
-		roomName_[name] = false;
+        const std::string tmp(name);
         rooms_.erase(itr);
+        unused_names_.insert(tmp);
     } else {
-        printf("[WARNING] room to close is not exists (%s).\n", user.c_str());
+        printf("[WARNING] room to close is not exists (%s).\n", name.c_str());
     }
 }
 

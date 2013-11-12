@@ -66,7 +66,7 @@ int main(const int argc, const char** argv) {
         return -1;
     }
 
-    Json::Value root(Json::objectValue);
+    Json::Value root(Json::arrayValue);
     if (!ReadJson(filepath.c_str(), root)) {
         printf("[ERROR] read json failed from \"%s\" file.\n", filepath.c_str());
         return -1;

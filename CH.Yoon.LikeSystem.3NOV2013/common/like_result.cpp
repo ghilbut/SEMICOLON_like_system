@@ -30,13 +30,10 @@ bool LikeResult::Connect(const char* ip, const char* port) {
     return true;
 }
 
-void LikeResult::Open(const char* user_id) {
-
-    user_id_ = user_id;
+void LikeResult::Open(void) {
 
     Json::Value root(Json::objectValue);
     root["query"] = "open";
-    root["user"] = user_id_;
     Json::FastWriter writer;
     const std::string json = writer.write(root);
 
@@ -52,7 +49,7 @@ void LikeResult::Close(void) {
 
     Json::Value root(Json::objectValue);
     root["query"] = "close";
-    root["user"] = user_id_;
+    root["name"] = name_;
     Json::FastWriter writer;
     const std::string json = writer.write(root);
 
@@ -123,7 +120,13 @@ void LikeResult::handle_read_body(const boost::system::error_code& error) {
         }
 
         const std::string query = root["query"].asString();
-        if (query == "like") {
+        if (query == "opened") {
+            const Json::Value& name = root["name"];
+            if (name.isString()) {
+                name_ = name.asString();
+                io_service_.post(boost::bind(&LikeResultDelegate::OnOpened, &delegate_, name_));
+            }
+        } else if (query == "like") {
             const unsigned int count = root["count"].asUInt();
             io_service_.post(boost::bind(&LikeResultDelegate::OnLikeCount, &delegate_, count));
         } else if (query == "closed") {

@@ -24,8 +24,8 @@ public:
     void handle_accept(LikeSessionPtr session, const boost::system::error_code& error);
 
     // LikeSessionDelegate
-    virtual void OnOpen(LikeSessionPtr session, const std::string& user);
-    virtual void OnClose(LikeSessionPtr session, const std::string& user);
+    virtual void OnOpen(LikeSessionPtr session);
+    virtual void OnClose(LikeSessionPtr session, const std::string& name);
     virtual void OnJoin(LikeSessionPtr session, const std::string& user, const std::string& target);
     virtual void OnLike(LikeSessionPtr session, const std::string& user, bool like);
     virtual void OnLeave(LikeSessionPtr session);
@@ -36,7 +36,7 @@ private:
     boost::asio::io_service& io_service_;
     Tcp::acceptor acceptor_;
 
-	std::map<std::string, bool> roomName_;
+    std::set<std::string> unused_names_;
     std::set<LikeSessionPtr> session_list_;
     std::map<std::string, LikeRoomPtr> rooms_;
 };

@@ -8,17 +8,16 @@
 
 class LikeCount {
 public:
-    explicit LikeCount(Json::Value& list);
+    LikeCount(void);
     ~LikeCount(void);
 
     bool IsLike(const std::string& user) const;
-    unsigned int Like(const std::string& user, bool like);
-    unsigned int Size(void) const;
+    size_t Like(const std::string& user, bool like);
+    size_t Size(void) const;
 
 
 private:
     std::set<std::string> likes_;
-    Json::Value& list_;
 };
 
 #endif  // LIKE_COUNT_H_

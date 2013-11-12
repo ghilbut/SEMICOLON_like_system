@@ -12,8 +12,8 @@ typedef boost::shared_ptr<LikeSession> LikeSessionPtr;
 class LikeSessionDelegate {
 public:
     // LikeResult
-    virtual void OnOpen(LikeSessionPtr session, const std::string& user) = 0;
-    virtual void OnClose(LikeSessionPtr session, const std::string& user) = 0;
+    virtual void OnOpen(LikeSessionPtr session) = 0;
+    virtual void OnClose(LikeSessionPtr session, const std::string& name) = 0;
     // LikeClient
     virtual void OnJoin(LikeSessionPtr session, const std::string& user, const std::string& target) = 0;
     virtual void OnLike(LikeSessionPtr session, const std::string& user, bool like) = 0;

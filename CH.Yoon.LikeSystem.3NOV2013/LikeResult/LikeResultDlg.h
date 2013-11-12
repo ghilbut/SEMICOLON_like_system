@@ -44,6 +44,7 @@ protected:
 
 private:
     virtual void OnConnected(void);
+    virtual void OnOpened(const std::string& name);
     virtual void OnLikeCount(unsigned int count);
     virtual void OnClosed(void);
     virtual void OnDisconnected(void);

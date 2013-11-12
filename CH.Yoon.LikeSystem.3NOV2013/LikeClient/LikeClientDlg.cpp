@@ -57,8 +57,8 @@ BOOL CLikeClientDlg::OnInitDialog()
 	// TODO: Add extra initialization here
     ::SetDlgItemText(*this, IDC_HOST, _T("127.0.0.1"));
     ::SetDlgItemText(*this, IDC_PORT, _T("8181"));
-    ::SetDlgItemText(*this, IDC_USER, _T("p1"));
-    ::SetDlgItemText(*this, IDC_TARGET, _T("p0"));
+    ::SetDlgItemText(*this, IDC_USER, _T("myid"));
+    ::SetDlgItemText(*this, IDC_TARGET, _T("apple"));
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

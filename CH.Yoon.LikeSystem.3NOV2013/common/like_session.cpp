@@ -114,15 +114,11 @@ void LikeSession::handle_read_body(const boost::system::error_code& error) {
 
         const std::string query = root["query"].asString();
         if (query == "open") {
-            const Json::Value& user = root["user"];
-            if (user.isString()) {
-                const std::string param = user.asString();
-                io_service_.post(boost::bind(&LikeSessionDelegate::OnOpen, delegate_, shared_from_this(), param));
-            }
+            io_service_.post(boost::bind(&LikeSessionDelegate::OnOpen, delegate_, shared_from_this()));
         } else if (query == "close") {
-            const Json::Value& user = root["user"];
-            if (user.isString()) {
-                const std::string param = user.asString();
+            const Json::Value& name = root["name"];
+            if (name.isString()) {
+                const std::string param = name.asString();
                 io_service_.post(boost::bind(&LikeSessionDelegate::OnClose, delegate_, shared_from_this(), param));
             }
         } else if (query == "join") {
