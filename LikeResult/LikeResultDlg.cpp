@@ -53,6 +53,18 @@ BOOL CLikeResultDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+    RECT rc_desktop, rc_this;
+    ::GetWindowRect(::GetDesktopWindow(), &rc_desktop);
+    ::GetWindowRect(*this, &rc_this);
+    ::SetWindowPos(*this
+                   , 0
+                   , rc_desktop.right-(rc_this.right-rc_this.left)-10
+                   , rc_desktop.top+10
+                   , 0
+                   , 0
+                   , SWP_NOSIZE | SWP_NOZORDER);
+
+
     ::SetDlgItemText(*this, IDC_HOST, _T("127.0.0.1"));
     ::SetDlgItemText(*this, IDC_PORT, _T("8181"));
 

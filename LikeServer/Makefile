@@ -2,8 +2,8 @@
 
 CC = g++
 
-INC = -I../common -I/usr/include
-LIBS = ../lib/common.lib -L/usr/lib -lboost_system -lboost_filesystem -ljson
+INC = -I../codebase -I/usr/include
+LIBS = ../lib/codebase.lib -L/usr/lib -lboost_system -lboost_filesystem -ljson
 CFLAGS = -g $(INC)
 
 OBJS = main.o

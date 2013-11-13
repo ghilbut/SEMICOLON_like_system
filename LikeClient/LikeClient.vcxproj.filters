@@ -13,7 +13,7 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="common">
+    <Filter Include="codebase">
       <UniqueIdentifier>{8077dd8a-eadd-4506-802e-51bf78f7a5ea}</UniqueIdentifier>
     </Filter>
     <Filter Include="third_party">
@@ -45,11 +45,11 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\like_client.h">
-      <Filter>common</Filter>
+    <ClInclude Include="..\codebase\like_client.h">
+      <Filter>codebase</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\like_message.h">
-      <Filter>common</Filter>
+    <ClInclude Include="..\codebase\like_message.h">
+      <Filter>codebase</Filter>
     </ClInclude>
     <ClInclude Include="LikeClient.h">
       <Filter>Header Files</Filter>
@@ -78,8 +78,8 @@
     <ClInclude Include="..\third_party\jsoncpp-0.5.0\include\json\writer.h">
       <Filter>third_party\jsoncpp</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\like_client_delegate.h">
-      <Filter>common</Filter>
+    <ClInclude Include="..\codebase\like_client_delegate.h">
+      <Filter>codebase</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,8 +92,8 @@
     <ClCompile Include="LikeClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\like_client.cpp">
-      <Filter>common</Filter>
+    <ClCompile Include="..\codebase\like_client.cpp">
+      <Filter>codebase</Filter>
     </ClCompile>
     <ClCompile Include="..\third_party\jsoncpp-0.5.0\src\lib_json\json_reader.cpp">
       <Filter>third_party\jsoncpp</Filter>

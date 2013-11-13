@@ -220,7 +220,7 @@ void CLikeClientDlg::OnLeaved(void) {
     ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
+    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), TRUE);
 
     ::EnableWindow(::GetDlgItem(*this, IDC_USER), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_TARGET), TRUE);
