@@ -2,8 +2,15 @@
 # CH.Yoon.LikeSystem.3NOV2013
 #################
 
+# visual studio
 *.suo
-ServerData.json
+
+# c/c++ build results (linux)
+*.o
+*.lib
+
+# test data
+LikeServer.json
 
 
 
