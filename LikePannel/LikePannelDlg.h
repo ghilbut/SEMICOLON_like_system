@@ -33,8 +33,6 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 
-    afx_msg void OnBnClickedConnect(void);
-    afx_msg void OnBnClickedOpen(void);
     afx_msg void OnBnClickedClose(void);
     afx_msg void OnBnClickedDisconnect(void);
     afx_msg LRESULT OnDisconnected(WPARAM wparam, LPARAM lparam);

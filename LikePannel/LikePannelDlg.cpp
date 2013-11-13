@@ -35,8 +35,6 @@ BEGIN_MESSAGE_MAP(CLikePannelDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 
-    ON_BN_CLICKED(IDC_CONNECT, &CLikePannelDlg::OnBnClickedConnect)
-    ON_BN_CLICKED(IDC_OPEN, &CLikePannelDlg::OnBnClickedOpen)
     ON_BN_CLICKED(IDC_CLOSE, &CLikePannelDlg::OnBnClickedClose)
     ON_BN_CLICKED(IDC_DISCONNECT, &CLikePannelDlg::OnBnClickedDisconnect)
     ON_MESSAGE(WM_APP+1, &CLikePannelDlg::OnDisconnected)
@@ -66,9 +64,9 @@ BOOL CLikePannelDlg::OnInitDialog()
                    , 0
                    , SWP_NOSIZE | SWP_NOZORDER);
 
-
-    ::SetDlgItemTextA(*this, IDC_HOST, host_.c_str());
-    ::SetDlgItemTextA(*this, IDC_PORT, port_.c_str());
+    io_service_.reset();
+    result_.Connect(host_.c_str(), port_.c_str());
+    thread_.swap(boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -111,24 +109,6 @@ HCURSOR CLikePannelDlg::OnQueryDragIcon()
 
 
 
-void CLikePannelDlg::OnBnClickedConnect(void) {
-    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
-
-    char ip[260];
-    char port[10];
-    ::GetDlgItemTextA(*this, IDC_HOST, ip, 260);
-    ::GetDlgItemTextA(*this, IDC_PORT, port, 10);
-
-    io_service_.reset();
-    result_.Connect(ip, port);
-    thread_.swap(boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
-}
-
-void CLikePannelDlg::OnBnClickedOpen(void) {
-    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
-    result_.Open();
-}
-
 void CLikePannelDlg::OnBnClickedClose(void) {
     ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
     result_.Close();
@@ -140,12 +120,8 @@ void CLikePannelDlg::OnBnClickedDisconnect(void) {
 }
 
 LRESULT CLikePannelDlg::OnDisconnected(WPARAM wparam, LPARAM lparam) {
-    ::SetDlgItemTextW(*this, IDC_NAME, L"");
-    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), TRUE);
+    
     ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
     ::SetDlgItemTextA(*this, IDC_COUNT, "0");
 
@@ -163,13 +139,8 @@ void CLikePannelDlg::OnCancel(void) {
 
 
 void CLikePannelDlg::OnConnected(void) {
-    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
     ::SetDlgItemTextA(*this, IDC_COUNT, "0");
+    result_.Open();
 }
 
 void CLikePannelDlg::OnOpened(const std::string& name) {
@@ -180,13 +151,9 @@ void CLikePannelDlg::OnOpened(const std::string& name) {
         // see: http://msdn.microsoft.com/en-us/library/dd374130.aspx
         return;
     }
-    ::SetDlgItemTextW(*this, IDC_NAME, wname);
 
-    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
+    ::SetDlgItemTextW(*this, IDC_NAME, wname);
     ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), FALSE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), TRUE);
 }
 
@@ -197,12 +164,6 @@ void CLikePannelDlg::OnLikeCount(unsigned int count) {
 }
 
 void CLikePannelDlg::OnClosed(void) {
-    ::SetDlgItemTextW(*this, IDC_NAME, L"");
-    ::EnableWindow(::GetDlgItem(*this, IDC_HOST), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_PORT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_CONNECT), FALSE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_DISCONNECT), TRUE);
-    ::EnableWindow(::GetDlgItem(*this, IDC_OPEN), TRUE);
     ::EnableWindow(::GetDlgItem(*this, IDC_CLOSE), FALSE);
 }
 
