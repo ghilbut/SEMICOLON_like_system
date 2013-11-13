@@ -121,6 +121,19 @@ void LikeServer::OnJoin(LikeSessionPtr session, const std::string& user, const s
     std::map<std::string, LikeRoomPtr>::iterator itr = rooms_.find(target);
     if (itr == rooms_.end()) {
         printf("[WARNING] room to join is not exists (%s).\n", target.c_str());
+
+        Json::Value root(Json::objectValue);
+        root["query"] = "close";
+
+        Json::FastWriter writer;
+        std::string json = writer.write(root);
+
+        chat_message msg;
+        strcpy(msg.body(), json.c_str());
+        msg.body_length(json.length());
+        msg.encode_header();
+        session->Write(msg);
+
         return;
     }
 

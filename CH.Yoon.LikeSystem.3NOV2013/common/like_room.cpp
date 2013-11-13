@@ -57,8 +57,9 @@ void LikeRoom::OnClose(LikeSessionPtr session, const std::string& name) {
     Guests::iterator itr = guests_.begin();
     Guests::iterator end = guests_.end();
     for (; itr != end; ++itr) {
-        (*itr)->Write(msg);
-        delegate_.OnLeave(session);
+        LikeSessionPtr& guest = const_cast<LikeSessionPtr&>(*itr);
+        guest->Write(msg);
+        delegate_.OnLeave(guest);
     }
     delegate_.OnClose(session, name_);
 }
