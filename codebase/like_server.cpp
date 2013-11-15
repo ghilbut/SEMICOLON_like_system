@@ -66,7 +66,7 @@ void LikeServer::OnOpen(LikeSessionPtr session) {
         return;
     }
 
-    const std::string& name = *(unused_names_.begin());
+    const std::string name = *(unused_names_.begin());
     if (rooms_.find(name) != rooms_.end()) {
         BOOST_ASSERT(false);
         printf("[ERROR] room is already exists (%s).\n", name.c_str());
@@ -83,6 +83,7 @@ void LikeServer::OnOpen(LikeSessionPtr session) {
         return;
     }
 
+    unused_names_.erase(name);
     printf("[INFO] create new room (%s).\n", name.c_str());
 
     LikeRoomPtr room(new LikeRoom(name, session, *this));

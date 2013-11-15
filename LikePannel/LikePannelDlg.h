@@ -34,7 +34,6 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 
     afx_msg void OnBnClickedClose(void);
-    afx_msg void OnBnClickedDisconnect(void);
     afx_msg LRESULT OnDisconnected(WPARAM wparam, LPARAM lparam);
     virtual void OnCancel(void);
 	DECLARE_MESSAGE_MAP()
